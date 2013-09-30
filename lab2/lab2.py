@@ -10,24 +10,25 @@ data = []
 
 def kernel(x,y):
 	# polynomial
-	#return kernel_polynomial(x,y,1) # Linear (order 1)
-	#return kernel_polynomial(x,y,2) # order 2
-	#return kernel_polynomial(x,y,3) # order 3
+	#return kernel_polynomial(x,y,10) 
 	
 	#rational quadratic
-	#return kernel_rational_quadratic(x, y, 1) # 
+	#return kernel_rational_quadratic(x, y, 10)
 	
+	#radial basis
 	return kernel_radial_basis(x, y, 0.5)
 
 def Data():
 	#return generateData()
-	return test1()
+	#return test1()
+	#return test2()
+	return test3()
 
 def generateData():
-	classA = [(random.normalvariate(-1.5, 1), random.normalvariate(0.5, 0.5), 1.0) for i in range(5)] + \
-			 [(random.normalvariate( 1.5, 1), random.normalvariate(0.5, 0.5), 1.0) for i in range(5)]
+	classA = [(random.normalvariate(-1.0, 1.0), random.normalvariate(-0.5, 0.5), 1.0) for i in range(5)] + \
+			 [(random.normalvariate(-1.0, 1.0), random.normalvariate(-0.5, 0.5), 1.0) for i in range(5)]
 
-	classB = [(random.normalvariate(0.0, 0.5), random.normalvariate(-0.5, 0.5), -1.0) for i in range(10)]
+	classB = [(random.normalvariate( 0.0, 0.5), random.normalvariate(-0.5, 0.5),-1.0) for i in range(10)]
 
 	data = classA + classB
 	random.shuffle(data)
@@ -38,6 +39,16 @@ def test1():
 	import test1
 	print "test1 =", test1.data
 	return test1.data
+
+def test2():
+	import test2
+	print "test2 =", test2.data
+	return test2.data
+	
+def test3():
+	import test3
+	print "test3 =", test3.data
+	return test3.data
 
 def kernel_polynomial(x, y, order):
 	return ((x[0]*y[0] + x[1]*y[1]) + 1)**order
