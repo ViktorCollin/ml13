@@ -5,35 +5,46 @@ import pylab
 import random
 import math
 
+MIN_SLACK = 1000000000000000
+
 alpha = []
 data = []
+C = MIN_SLACK
 
 def kernel(x,y):
 	# polynomial
-	#return kernel_polynomial(x,y,10) 
-	
-	#rational quadratic
-	#return kernel_rational_quadratic(x, y, 10)
+	#return kernel_polynomial(x,y,3) 
 	
 	#radial basis
-	return kernel_radial_basis(x, y, 0.5)
+	#return kernel_gaussian(x, y, 2.5)
+	#return kernel_rational_quadratic(x, y, 10)
+	
+	# circular
+	return kernel_circular(x,y, 0.1)
 
 def Data():
-	#return generateData()
+	
+	#return test0()
 	#return test1()
 	#return test2()
 	return test3()
+	#return generateData()
 
 def generateData():
-	classA = [(random.normalvariate(-1.0, 1.0), random.normalvariate(-0.5, 0.5), 1.0) for i in range(5)] + \
-			 [(random.normalvariate(-1.0, 1.0), random.normalvariate(-0.5, 0.5), 1.0) for i in range(5)]
+	classA = [(random.normalvariate(0.0, 1.5), random.normalvariate(0, 1.5), 1.0) for i in range(5)] + \
+			 [(random.normalvariate(0.0, 1.5), random.normalvariate(0, 1.5), 1.0) for i in range(5)]
 
-	classB = [(random.normalvariate( 0.0, 0.5), random.normalvariate(-0.5, 0.5),-1.0) for i in range(10)]
+	classB = [(random.normalvariate(0.0, 1.5), random.normalvariate(0, 1.5),-1.0) for i in range(10)]
 
 	data = classA + classB
 	random.shuffle(data)
 	print "data =", data
 	return data
+
+def test0():
+	import test0
+	print "test0 =", test0.data
+	return test0.data	
 	
 def test1():
 	import test1
@@ -53,13 +64,20 @@ def test3():
 def kernel_polynomial(x, y, order):
 	return ((x[0]*y[0] + x[1]*y[1]) + 1)**order
 
-def kernel_radial_basis(x, y, sigma):
+def kernel_gaussian(x, y, sigma):
 	length = (x[0]-y[0])**2+(x[1]-y[1])**2
 	return math.e**(0-(length/(2*sigma**2))) 
 		
 def kernel_rational_quadratic(x, y, c):
 	length = (x[0]-y[0])**2+(x[1]-y[1])**2
 	return 1 - (length/(length + c))
+	
+def kernel_circular(x, y, zigma):
+	length = math.sqrt((x[0]-y[0])**2+(x[1]-y[1])**2)
+	if(length < zigma):
+		return (2/math.pi) * ( math.acos(0-length/zigma) - ((length/zigma)*math.sqrt(1-(length/zigma)**2)) )
+	else:
+		return 0
 
 def buildP(data):
 	p = [[0 for x in xrange(len(data))] for x in xrange(len(data))]
@@ -74,11 +92,14 @@ def buildP(data):
 	return p
 	
 def buildQGH(n):
+  global C
   q = [-1.0 for x in xrange(n)]
-  h = [0.0 for x in xrange(n)]
-  G = [[0.0 for x in xrange(n)] for x in xrange(n)]
+  h = [0.0 for x in xrange(2*n)]
+  G = [[0.0 for x in xrange(2*n)] for x in xrange(n)]
   for i in range(n):
+    h[n+i] = C
     G[i][i] = -1.0
+    G[i][n+i] = 1.0
   return q,h,G
 
 def plotDots():
@@ -87,7 +108,7 @@ def plotDots():
 	if(p[2] == 1.0):
 	  pylab.plot(p[0], p[1], 'bo')
 	else:
-	  pylab.plot(p[0], p[1], 'ro')
+	  pylab.plot(p[0], p[1], 'rv')
   #pylab.plot([p[0] for p in classA], [p[1] for p in classA], 'bo')
   #pylab.plot([p[0] for p in classB], [p[1] for p in classB], 'ro')
   xrange = numpy.arange(-4, 4, 0.05)
