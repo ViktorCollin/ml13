@@ -9,18 +9,18 @@ MIN_SLACK = 1000000000000000
 
 alpha = []
 data = []
-C = MIN_SLACK
+C = 10000000
 
 def kernel(x,y):
 	# polynomial
-	#return kernel_polynomial(x,y,3) 
+	#return kernel_polynomial(x,y,2) 
 	
 	#radial basis
-	#return kernel_gaussian(x, y, 2.5)
+	return kernel_gaussian(x, y, 1)
 	#return kernel_rational_quadratic(x, y, 10)
 	
 	# circular
-	return kernel_circular(x,y, 0.1)
+	return kernel_circular(x,y, 0.9)
 
 def Data():
 	
