@@ -7,26 +7,28 @@ import math
 
 alpha = []
 data = []
+C = 20
 
 def kernel(x,y):
-	# polynomial
-	#return kernel_polynomial(x,y,10) 
-	
-	#rational quadratic
-	#return kernel_rational_quadratic(x, y, 10)
-	
-	#radial basis
-	return kernel_radial_basis(x, y, 0.5)
+  # polynomial
+  return kernel_polynomial(x,y,10) 
+
+  #rational quadratic
+  return kernel_rational_quadratic(x, y, 10)
+
+  #radial basis
+  return kernel_radial_basis(x, y, 0.5)
 
 def Data():
-	#return generateData()
-	#return test1()
-	#return test2()
-	return test3()
+#	return generateData()
+  #return test1()
+#return test2()
+#	return test3()
+  return test4()
 
 def generateData():
-	classA = [(random.normalvariate(-1.0, 1.0), random.normalvariate(-0.5, 0.5), 1.0) for i in range(5)] + \
-			 [(random.normalvariate(-1.0, 1.0), random.normalvariate(-0.5, 0.5), 1.0) for i in range(5)]
+	classA = [(random.normalvariate(-1.5, 1.0), random.normalvariate(0.5, 1.0), 1.0) for i in range(5)] + \
+			 [(random.normalvariate(1.5, 1.0), random.normalvariate(0.5, 1.0), 1.0) for i in range(5)]
 
 	classB = [(random.normalvariate( 0.0, 0.5), random.normalvariate(-0.5, 0.5),-1.0) for i in range(10)]
 
@@ -49,6 +51,11 @@ def test3():
 	import test3
 	print "test3 =", test3.data
 	return test3.data
+
+def test4():
+	import test4
+	print "test4 =", test4.data
+	return test4.data
 
 def kernel_polynomial(x, y, order):
 	return ((x[0]*y[0] + x[1]*y[1]) + 1)**order
@@ -74,11 +81,15 @@ def buildP(data):
 	return p
 	
 def buildQGH(n):
+  global C
   q = [-1.0 for x in xrange(n)]
-  h = [0.0 for x in xrange(n)]
-  G = [[0.0 for x in xrange(n)] for x in xrange(n)]
+  h = [0.0 for x in xrange(2*n)]
+  for i in range(n):
+    h[n+i] = C
+  G = [[0.0 for x in xrange(n)] for x in xrange(2*n)]
   for i in range(n):
     G[i][i] = -1.0
+    G[n+i][i] = 1.0
   return q,h,G
 
 def plotDots():
@@ -98,13 +109,13 @@ def plotDots():
 
 def generateAlpha(P,q,h,G):
   threshold = 0.00001
-  r = qp(matrix(P), matrix(q), matrix(G), matrix(h))
+  r = qp(matrix(P), matrix(q), matrix(G, (2*len(data), len(data)), 'd'), matrix(h))
   if(r['status'] != 'optimal'):
 	print "I failed =("
 	exit(-1)
   alpha = list(r['x'])
   for a in xrange(len(alpha)):
-    if alpha[a] < threshold:
+    if abs(alpha[a]) < threshold:
       alpha[a] = 0.0
   return alpha
 
