@@ -1,5 +1,6 @@
 from random import randint
-from animate import draw
+from animate import draw as drawAnimate
+from cartoon import drawCartoon
 gamma = 0.8
 
 def argmax(f, args):
@@ -29,26 +30,9 @@ trans = ((1 , 3 , 4 , 12), #0
 		 (12, 14, 9 , 1 ), #13
 		 (15, 13, 10, 2 ), #14
 		 (14, 12, 11, 3 )) #15
-		
-rew = ((1 ,-2 , 1 ,-2), #0 
-	   (-1, 1 ,-3 ,-2), #1
-	   (1 , -1 ,-3 , -2), #2
-	   (-1 , -2 , 1 , -2), #3
-	   (-3,-2 , -1 , 1), #4
-	   (1 ,-3 , 1 ,-3), #5
-	   (1 ,-3 , 0 ,-3), #6
-	   (-3, 1 , -1 , 1), #7
-	   (-3, -2 , 1 , -1), #8
-	   (0 ,-3 , 1 ,-3), #9
-	   (1 ,-3 , 1 ,-3), #10
-	   (-3, 1 , 0 , -1), #11
-	   (1 , -2 , -1 , -2), #12
-	   (-1 , 0 ,-3 , 1), #13
-	   (0 , -1 ,-3 , 1), #14
-	   (-1 , -2 , -1 , -2)) #15
 	
 rew = (
-    ( 0,-1, 0,-1), #0 
+      ( 0,-1, 0,-1), #0 
 	  ( 0, 0,-5,-9), #1
 	  ( 0, 0,-5,-1), #2
 	  ( 0,-1, 0,-1), #3
@@ -59,17 +43,32 @@ rew = (
 	  (-5,-1, 0, 0), #8
 	  ( 0,-5, 0,-5), #9
 	  ( 0,-5, 0,-5), #10
-	  (-5,-1, 0, 0), #11
+	  (-5, 1, 0, 0), #11
 	  ( 0,-1, 0,-1), #12
 	  ( 0, 0,-5, 1), #13
-	  ( 0, 0,-5,-1), #14
+	  ( 0, 0,-5, 1), #14
 	  ( 0,-1, 0,-1) #15
      )
 
+class Environment:
+	global trans, rew
+	def init(self, state = 0):
+		self.state = state
+		self.trans = trans
+		self.rew = rew
+	def go(self, a):
+		r = self.rew[self.state][a]
+		self.state = self.trans[self.state][a]
+		return self.state, r
+
 def policyIteration():
+  print "PolicyIteration gamma: ", gamma
+  print "State\t  Trans   \t\t    Reward"
+  for i in range(len(trans)):
+	print i,": \t",trans[i], "   \t ", rew[i]
+
   policy = [None for s in trans]
   value = [0 for s in trans]
-  
   for p in range(100):
     for s in range(len(policy)):
       policy[s] = argmax(
@@ -79,28 +78,33 @@ def policyIteration():
     for s in range(len(value)):
       a = policy[s]
       value[s] = rew[s][a] + gamma * value[trans[s][a]]
-  print_dot(policy)	
-  state = randint(0,len(trans)-1)
+  print_dot(policy, "policyIteration.dot")	
+  state = 3 #randint(0,len(trans)-1)
   sequence = [state]
-  for i in range(16):
+  for i in range(7):
     state = trans[state][policy[state]]
     sequence.append(state)
-  draw(sequence)
+  drawAnimate(sequence)
+  drawCartoon(sequence) 
 
-def print_dot(policy):
-  print "digraph{"
+
+
+def print_dot(policy, filename="graph.dot"):
+  f = open(filename, 'w')
+  f.write("digraph{\n")
   for i in range(len(policy)):
-    print i, "[label=\"\", image=\"step%d.png\"];" % (i+1)
+    f.write("%d [label=\"\", image=\"step%d.png\"];\n" % (i,i+1))
   for i in range(len(policy)):
-    print i, " -> ", trans[i][policy[i]], ";"
-  print "}"
+    f.write("%d -> %d;\n" % (i, trans[i][policy[i]]))
+  f.write("}\n")
+  f.close()
 
 
 
 def main():
-# print "+++++++++++++++++++++++++++++++++++++++++++++++++++\n\tLab 4 - Machine learning (DD2431)\n\t Viktor Collin <vcollin@kth.se>\n\t Simon Osterman <simost@kth.se>"
+  print "+++++++++++++++++++++++++++++++++++++++++++++++++++\n\tLab 4 - Machine learning (DD2431)\n\t Viktor Collin <vcollin@kth.se>\n\t Simon Osterman <simost@kth.se>\n+++++++++++++++++++++++++++++++++++++++++++++++++++"
   policyIteration();
-# print "+++++++++++++++++++++++++++++++++++++++++++++++++++"
+  print "+++++++++++++++++++++++++++++++++++++++++++++++++++"
   
 
 
